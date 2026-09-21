@@ -31,6 +31,16 @@
 		<spring-cloud.version>2025.1.1</spring-cloud.version>
 	</properties>
 	<dependencies>
+		<!-- Jakarta Servlet API: clases jakarta.servlet.* (HttpServletRequest,
+		     FilterChain, etc). Spring Boot 4.x gestiona la versión via BOM del
+		     spring-boot-starter-parent (no necesita <version>). La declaramos
+		     EXPLÍCITAMENTE para no depender de transitorios y eliminar 29 errores
+		     de compilación cuando Maven a veces no la resuelve via starter-web. -->
+		<dependency>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -40,13 +50,31 @@
 			<artifactId>spring-cloud-starter-gateway-server-webmvc</artifactId>
 		</dependency>
 
+		<!-- Spring Security + OAuth2 Resource Server (JWT) para validar tokens de MS Entra ID -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+
+		<!-- Actuator: solo exponemos /actuator/health público para probes de Docker/k8s -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
 
-		<!-- JJWT para JSON Web Tokens -->
+		<!-- JJWT (flujo JWT propio ANTERIOR). Queda en el pom por compatibilidad, pero su
+		     validador es reemplazado por el OAuth2 Resource Server en esta etapa. Se puede
+		     retirar completamente en un cleanup posterior (cuando el flujo legacy se retire). -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -75,6 +103,29 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Firma de tokens JWT RSA dentro de tests OFFLINE (Auth0 java-jwt).
+		     NO usado en runtime productivo. -->
+		<dependency>
+			<groupId>com.auth0</groupId>
+			<artifactId>java-jwt</artifactId>
+			<version>4.4.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Hamcrest matchers usados por MockMvc (containsString, etc).
+		     Suelen venir transitivamente pero lo declaramos explicitamente por seguridad. -->
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest</artifactId>
+			<version>2.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

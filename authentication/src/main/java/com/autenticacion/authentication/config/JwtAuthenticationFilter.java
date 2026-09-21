@@ -9,14 +9,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.List;
 
-@Component
+/**
+ * @deprecated (Etapa 4 - Migración a Microsoft Entra ID).
+ * <p>Este filtro JWT HMAC propietario ha sido reemplazado COMPLETAMENTE por el
+ * API Gateway (BFF) configurado como OAuth2 Resource Server JWT que valida
+ * tokens de Entra ID via JWKS + Nimbus.
+ *
+ * <p>Se eliminó @Component para que Spring NO lo registre automaticamente y en
+ * {@link SecurityConfig} se retiró su addFilterBefore(). La clase se conserva
+ * únicamente como referencia histórica del flujo anterior (NO se borra código).
+ */
+@Deprecated(since = "Etapa 4 Entra ID")
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 

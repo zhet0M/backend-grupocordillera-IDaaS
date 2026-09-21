@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.grupocordillera.api_gateway.config.JwtService;
@@ -15,7 +14,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-@Component
+/**
+ * @deprecated OBSOLETO (Etapa 1 - Microsoft Entra ID).
+ * Este filtro manual de JWT (HMAC JJWT propio) fue reemplazado por el
+ * {@code SecurityFilterChain} en {@code ResourceServerConfig}, que actúa como
+ * OAuth2 Resource Server validando tokens de Entra ID via JWKS + Nimbus.
+ *
+ * Se eliminó @Component para que Spring NO lo registre automaticamente.
+ * La clase se conserva solo como referencia historica del flujo anterior.
+ */
+@Deprecated
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 

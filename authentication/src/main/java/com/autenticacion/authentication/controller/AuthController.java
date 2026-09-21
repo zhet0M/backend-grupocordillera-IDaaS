@@ -31,17 +31,35 @@ public class AuthController {
 
     private final AuthService authService;
 
-    // endpoinst publicos
+    // =========================================================================
+    // ENDPOINTS DESHABILITADOS (Etapa 4 - Migración a Microsoft Entra ID).
+    // El código NO se borra (cumple restricción del plan) pero devuelve
+    // HTTP 410 Gone para que el cliente sepa que este flujo ya no existe.
+    // El flujo de login/registro actual usa MSAL + Entra ID desde el frontend.
+    // =========================================================================
 
+    /**
+     * @deprecated (Etapa 4) Reemplazado por registro administrativo de usuarios
+     * en Microsoft Entra ID. Devuelve siempre {@code 410 Gone}.
+     */
+    @Deprecated(since = "Etapa 4 Entra ID")
     @PostMapping("/registro")
     public ResponseEntity<String> register(@RequestBody RegistroRequest request){
-        authService.registrar(request);
-        return ResponseEntity.ok("Usuario registrado correctamente");
+        return ResponseEntity.status(org.springframework.http.HttpStatus.GONE)
+                .body("[DEPRECADO] El flujo de registro propio ha sido deshabilitado. " +
+                      "Los usuarios se administran ahora en Microsoft Entra ID.");
     }
 
+    /**
+     * @deprecated (Etapa 4) Reemplazado por flujo MSAL en el frontend con
+     * Microsoft Entra ID. Devuelve siempre {@code 410 Gone}.
+     */
+    @Deprecated(since = "Etapa 4 Entra ID")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request){
-        return ResponseEntity.ok(authService.login(request));
+        // Devolvemos 410 sin body de LoginResponse para no confundir al cliente.
+        // Tipo de retorno se mantiene para no romper imports de DTOs en dependencias.
+        return ResponseEntity.status(org.springframework.http.HttpStatus.GONE).build();
     }
 
     // endpoinst admin

@@ -255,6 +255,18 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # ── Microsoft Entra ID (BFF) ──────────────────────────────────────────
+      # Valores por defecto de la etapa 0. Sobreescribe al deployar (stg/prod).
+      AZURE_TENANT_ID: 4250abc2-359b-45d6-8fb2-732e71b2a277
+      AZURE_ISSUER: https://login.microsoftonline.com/4250abc2-359b-45d6-8fb2-732e71b2a277/v2.0
+      AZURE_JWK_SET_URI: https://login.microsoftonline.com/4250abc2-359b-45d6-8fb2-732e71b2a277/discovery/v2.0/keys
+      # Audience = Client ID de la API (GUID SIN prefijo api://)
+      AZURE_AUDIENCE: 289a7d84-7d8d-4bea-b2a8-380f6e89043a
+      AZURE_API_SCOPE: access_as_user
+      # ── Seguridad / CORS ──────────────────────────────────────────────────
+      SECURITY_SWAGGER_PUBLIC: "true"
+      CORS_ALLOWED_ORIGINS: "http://localhost:4200,https://frontend-grupo-cordillera-angular.vercel.app"
+      # ── URLs de microservicios (intra-docker, nombres de servicio) ────────
       KPIS_URL: http://ms-kpis:8086
     depends_on:
       - authentication
