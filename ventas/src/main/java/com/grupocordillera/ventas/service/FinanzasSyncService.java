@@ -5,20 +5,24 @@ import com.grupocordillera.ventas.dto.MovimientoFinancieroRequest;
 import com.grupocordillera.ventas.model.Venta;
 import com.grupocordillera.ventas.repository.VentasRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
-@RequiredArgsConstructor
 public class FinanzasSyncService {
 
     private static final int MAX_INTENTOS_FINANZAS = 5;
 
     private final FinanzasClient finanzasClient;
     private final VentasRepository ventasRepository;
+
+    // Constructor explícito para evitar incompatibilidades con el compilador de VS Code
+    public FinanzasSyncService(FinanzasClient finanzasClient, VentasRepository ventasRepository) {
+        this.finanzasClient = finanzasClient;
+        this.ventasRepository = ventasRepository;
+    }
 
     @CircuitBreaker(name = "finanzas", fallbackMethod = "fallbackSincronizarFinanzas")
     public Venta sincronizarVentaConFinanzas(Venta venta) {

@@ -18,15 +18,18 @@ import com.grupocordillera.ventas.model.Venta;
 import com.grupocordillera.ventas.service.VentasService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/ventas")
 @Tag(name = "Ventas", description = "Registro, consulta y reproceso de ventas")
-@RequiredArgsConstructor
 public class VentasController {
 
     private final VentasService ventasService;
+
+    // Constructor explícito sin Lombok para evitar errores con el compilador de VS Code
+    public VentasController(VentasService ventasService) {
+        this.ventasService = ventasService;
+    }
 
     @PostMapping
     public ResponseEntity<Venta> registrar(@RequestBody Venta venta) {
@@ -56,20 +59,17 @@ public class VentasController {
         return ResponseEntity.ok(ventasService.obtenerPorFecha(fecha));
     }
 
-    // get ventas de hoy
     @GetMapping("/hoy")
     public ResponseEntity<List<Venta>> hoy() {
         return ResponseEntity.ok(ventasService.obtenerHoy());
     }
 
-    // get por sucursal
     @GetMapping("/sucursal/{sucursal}")
     public ResponseEntity<List<Venta>> porSucursal(
             @PathVariable String sucursal) {
         return ResponseEntity.ok(ventasService.obtenerPorSucursal(sucursal));
     }
 
-    // get ventas por rango de fechas
     @GetMapping("/rango")
     public ResponseEntity<List<Venta>> porRango(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -79,7 +79,6 @@ public class VentasController {
         return ResponseEntity.ok(ventasService.obtenerPorRango(inicio, fin));
     }
 
-    // get total ventas por período
     @GetMapping("/total/periodo")
     public ResponseEntity<Double> totalPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -89,7 +88,6 @@ public class VentasController {
         return ResponseEntity.ok(ventasService.totalPorPeriodo(inicio, fin));
     }
 
-    // get total de ventas por sucursal
     @GetMapping("/total/sucursal/{sucursal}")
     public ResponseEntity<Double> totalSucursal(
             @PathVariable String sucursal) {

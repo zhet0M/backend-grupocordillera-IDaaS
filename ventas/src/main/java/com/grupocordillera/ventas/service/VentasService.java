@@ -2,6 +2,7 @@ package com.grupocordillera.ventas.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,22 +13,35 @@ import com.grupocordillera.ventas.client.ClientesClient;
 import com.grupocordillera.ventas.client.InventarioClient;
 import com.grupocordillera.ventas.dto.ClienteDTO;
 import com.grupocordillera.ventas.dto.RegistrarCompraClienteRequest;
-import com.grupocordillera.ventas.model.Venta;
+import com.grupocordillera.ventas.dto.event.VentaRegistradaEvent;
 import com.grupocordillera.ventas.model.Sucursal;
+import com.grupocordillera.ventas.model.Venta;
+import com.grupocordillera.ventas.producer.VentaProducer;
 import com.grupocordillera.ventas.repository.VentasRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class VentasService {
 
     private static final int MAX_INTENTOS_FINANZAS = 5;
 
+    private final VentaProducer ventaProducer;
     private final VentasRepository ventasRepository;
     private final InventarioClient inventarioClient;
     private final ClientesClient clientesClient;
     private final FinanzasSyncService finanzasSyncService;
+
+    public VentasService(
+            VentaProducer ventaProducer,
+            VentasRepository ventasRepository,
+            InventarioClient inventarioClient,
+            ClientesClient clientesClient,
+            FinanzasSyncService finanzasSyncService) {
+        this.ventaProducer = ventaProducer;
+        this.ventasRepository = ventasRepository;
+        this.inventarioClient = inventarioClient;
+        this.clientesClient = clientesClient;
+        this.finanzasSyncService = finanzasSyncService;
+    }
 
     public Venta registrarVenta(Venta venta) {
         validarCanal(venta);
@@ -61,6 +75,19 @@ public class VentasService {
         aplicarSnapshotCliente(venta, cliente);
 
         Venta ventaGuardada = ventasRepository.save(venta);
+
+        try {
+            ventaProducer.publicarVentaRegistrada(new VentaRegistradaEvent(
+                    ventaGuardada.getId(),
+                    ventaGuardada.getClienteId(),
+                    ventaGuardada.getMontoTotal() != null ? BigDecimal.valueOf(ventaGuardada.getMontoTotal()) : BigDecimal.ZERO,
+                    ventaGuardada.getSucursal() != null ? ventaGuardada.getSucursal() : "GENERAL",
+                    LocalDateTime.now()
+            ));
+        } catch (Exception ex) {
+            System.err.println("Advertencia: No se pudo enviar evento a RabbitMQ: " + ex.getMessage());
+        }
+
         Venta ventaSincronizada = finanzasSyncService.sincronizarVentaConFinanzas(ventaGuardada);
         actualizarClientePorCompraSiCorresponde(ventaSincronizada);
         return ventasRepository.findById(ventaSincronizada.getId()).orElse(ventaSincronizada);
@@ -237,5 +264,4 @@ public class VentasService {
             // La venta ya quedo registrada; el historial del cliente se puede reprocesar luego si hace falta.
         }
     }
-
 }

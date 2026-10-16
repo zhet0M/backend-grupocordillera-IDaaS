@@ -1,0 +1,11 @@
+server:
+  port: 8089
+
+spring:
+  application:
+    name: admin-rabbitmq
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:cordillera}
+    password: ${RABBITMQ_PASSWORD:cordillera123}

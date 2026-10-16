@@ -1,0 +1,21 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: cordillera-rabbitmq
+    ports:
+      - "5672:5672"     # Comunicación AMQP de Spring Boot
+      - "15672:15672"   # Panel visual web (http://localhost:15672)
+    environment:
+      RABBITMQ_DEFAULT_USER: cordillera
+      RABBITMQ_DEFAULT_PASS: cordillera123
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - cordillera-net
+
+volumes:
+  rabbitmq-data:
+
+networks:
+  cordillera-net:
+    driver: bridge

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "clientes", url = "http://clientes:8085/clientes")
+@FeignClient(name = "clientes", url = "${app.services.clientes-url:http://localhost:8085/clientes}")
 public interface ClientesClient {
 
     @GetMapping("/{id}")
